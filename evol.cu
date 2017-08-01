@@ -18,7 +18,7 @@ __global__ void move_particles(real *particles, float *dw, real *energy_kev,real
 		real beta,v,u,uperp,gamma,dudt,betadot,gammadot,dbeta,dgamma,position;
 		int tid = threadIdx.x + blockIdx.x*blockDim.x;
 		int random_index;
-		random_index = tid;
+		random_index = threadIdx.x + nt*blockIdx.x*blockDim.x;
 		//random_index = timestep;
 
         for(int tstep = 0; tstep < nt; tstep++){
@@ -31,11 +31,7 @@ __global__ void move_particles(real *particles, float *dw, real *energy_kev,real
 
 			//printf("particle %d dw %f random_index %d\n",tid,dw[random_index],random_index);
 
-			if (abs(position*Lscl) < Epar_extent){
-				//kappa = eta_spitzer/eta;
-				kappa = 1.0e-5;
-			}
-			else {
+			if (abs(position*Lscl) > Epar_extent){
 				J = 0;
 				E = 0;
 				if (particles[nfields*tid+3] == 0){
@@ -43,39 +39,41 @@ __global__ void move_particles(real *particles, float *dw, real *energy_kev,real
 					//cout << "particle " << tid << " " << timestep*dt*Tscl << endl;
 				}
 			}
-			if (particles[nfields*tid+3] == 0){
-				eta_spitzer = 2.4e3/(pow((double) Temp,1.5))/etascl;
+			else{
+				//eta_spitzer = 2.4e3/(pow((double) Temp,1.5))/etascl;
+				eta_spitzer = 7.6e-8/etascl;	// corresponds to temperature 10^7 K
 				J = 1.0e4/Escl;		// NON-DIMENSIONAL!!! Note: ensures electric field of 10 V/m when eta = 10^-3 (non-dimensional)
 				eta = 1.0e-3;		// NON-DIMENSIONAL!!!
     			E = eta*J;			// NON-DIMENSIONAL!!!
+				kappa = eta_spitzer/eta;
+				//kappa = 1.0e-5;
 
-				if (abs(position*Lscl) < Epar_extent) nu = v/(lambda_ei*kappa);
-				else nu = 0.0;
+				nu = v/(lambda_ei*kappa);
 				//nu = 0.0;
 
-        	        	dudt = q*E*Escl/m*Tscl/Vscl;
-        	        	gammadot = u*Vscl/(c*c)*dudt*Vscl/(sqrt(1 + u*u*Vscl*Vscl/(c*c) + uperp*uperp*Vscl*Vscl/(c*c)));      // work in progress!!!
-        	        	if (u == 0) betadot = 0;
-        	        	else betadot = dudt/u*beta*(1.0-beta*beta);
+        	    dudt = q*E*Escl/m*Tscl/Vscl;
+        	    gammadot = u*Vscl/(c*c)*dudt*Vscl/(sqrt(1 + u*u*Vscl*Vscl/(c*c) + uperp*uperp*Vscl*Vscl/(c*c)));     
+        	    if (u == 0) betadot = 0;
+        	    else betadot = dudt/u*beta*(1.0-beta*beta);
 
-        	        	dgamma = gammadot*dt;
-        	        	dbeta = (betadot - beta*nu)*dt + sqrt((1.0 - beta*beta)*nu)*((real) dw[random_index]);
-						random_index += blockDim.x;
+        	    dgamma = gammadot*dt;
+        	    dbeta = (betadot - beta*nu)*dt + sqrt((1.0 - beta*beta)*nu)*sqrt(dt)*((real) dw[random_index]);
+				random_index += blockDim.x;
 
-        	        	beta += dbeta;
-        	        	if (beta > 1.0){
-							//cout << "beta = " << particles[nfields*tid+1] << endl;
-							beta = -beta + floor(beta) + 1.0;
-						}
-        	        	else if (beta < -1.0){
-							//cout << "beta = " << particles[nfields*tid+1] << endl;
-							beta = -beta + ceil(beta) - 1.0;
-						}
-        	        	gamma += dgamma;
-        	        	if (gamma < 1) gamma -= 2.0*dgamma;
+        	    beta += dbeta;
+        	    if (beta > 1.0){
+					//cout << "beta = " << particles[nfields*tid+1] << endl;
+					beta = -beta + floor(beta) + 1.0;
+				}
+        	    else if (beta < -1.0){
+					//cout << "beta = " << particles[nfields*tid+1] << endl;
+					beta = -beta + ceil(beta) - 1.0;
+				}
+        	    gamma += dgamma;
+        	    if (gamma < 1) gamma -= 2.0*dgamma;
 
-        	        	v = calc_vel(gamma, beta);
-        	        	position += beta*v*dt;
+        	    v = calc_vel(gamma, beta);
+        	    position += beta*v*dt;
 				
 				energy_kev[tid] = (gamma-1.0)*511.0;
 				potential[tid] = -eta*J*Escl*position*Lscl/1.0e3;
@@ -96,8 +94,7 @@ __global__ void move_particles(real *particles, float *dw, real *energy_kev,real
 					printf(" kinetic %f, potential %f, initial %f, difference %f\n", energy_kev[tid], potential[tid], energy_kev_0,energy_kev[tid] - potential[tid] - energy_kev_0);
 					printf(" eta, J, Escl, position, epar_extent, %f %f %f %f %f\n", eta,J,Escl,position*Lscl,Epar_extent);
 				}
-				//cout << "particle " << tid << " total energy " << energy_kev[tid] - potential[tid] - energy_kev_0  
-				//	<< " kinetic, potential, initial " << energy_kev[tid] << " " << potential[tid] << " "  << energy_kev_0 << endl;
+				//printf("particle %d, total energy %f, of which kinetic %f, potential %f, initial %f\n", tid,  energy_kev[tid] - potential[tid] - energy_kev_0, energy_kev[tid],  potential[tid], energy_kev_0);
 			}
         }
 }

@@ -7,7 +7,7 @@
 	#define EXTERN extern
 #endif
 
-typedef double real;
+typedef float real;
 
 const real c = 3.0e8;
 const real mu0_si = 8.85e-12;
@@ -23,11 +23,11 @@ const real Vscl = Lscl/Tscl;
 const real Escl = Vscl*Bscl;
 const real etascl = Vscl*Lscl*mu0_si;
 
-const real Tfinal = 0.01/Tscl;
+const real Tfinal = 0.1/Tscl;
 const real dt = 1.0e-8/Tscl;
 const int nt = Tfinal/dt;
 const int nfields = 4;
-const int nparticles = 1000;
+const int nparticles = 32;
 const int nwrite = 500;
 const int nwrite_particles = 2;
 const int output_fields = nfields;

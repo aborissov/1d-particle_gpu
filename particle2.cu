@@ -17,7 +17,8 @@ int main(int argc, char *argv[]){
 	real *h_particles, *d_particles; // array of particles: 1d position, cosine of pitch angle, lorentz factor, exit time
 	bool newflag = 1,newflag_trajectories = 1;
 	float *dw;
-	int nblocks = 40, threads_per_block = 32;
+	int threads_per_block = 32;
+	int nblocks = nparticles/threads_per_block;  // make sure nparticles is a multiple of 32
 
 	float milli;
 	cudaEvent_t start, stop;
