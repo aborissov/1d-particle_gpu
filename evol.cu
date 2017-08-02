@@ -35,7 +35,7 @@ __global__ void move_particles(real *particles, float *dw, real *energy_kev,real
 				J = 0;
 				E = 0;
 				if (particles[nfields*tid+3] == 0){
-					particles[nfields*tid+3] = tstep*dt*Tscl;
+					particles[nfields*tid+3] = tstep*dt;
 					//cout << "particle " << tid << " " << timestep*dt*Tscl << endl;
 				}
 			}
