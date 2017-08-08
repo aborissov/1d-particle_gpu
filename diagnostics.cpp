@@ -6,7 +6,7 @@ using namespace std;
 
 void write_particles(real *particles, bool newflag, char *filepath){
     ofstream outFile;
-    float pos,theta,energy,t_final;
+    float pos,beta,energy,t_final;
 
     if (newflag) outFile.open(filepath, ofstream::binary);
     else outFile.open(filepath, ofstream::binary | ofstream::app);
@@ -22,8 +22,8 @@ void write_particles(real *particles, bool newflag, char *filepath){
 		//cout << "energy = " << energy << endl;
 	}
 	for (int j = 0; j < nparticles; j++){
-		theta = particles[nfields*j+1];
-        	outFile.write((char*) &(theta), sizeof(float));
+		beta = particles[nfields*j+1];
+        	outFile.write((char*) &(beta), sizeof(float));
 	}
 	for (int j = 0; j < nparticles; j++){
 		t_final = particles[nfields*j+3]*Tscl;
@@ -34,7 +34,7 @@ void write_particles(real *particles, bool newflag, char *filepath){
 
 void write_particle(real *particles, bool newflag){
 	ofstream outFile;
-	float pos,theta,energy,t_final;
+	float pos,beta,energy,t_final;
 
 	if (newflag){
 		outFile.open("trajectories.dat", ofstream::binary);
@@ -45,11 +45,11 @@ void write_particle(real *particles, bool newflag){
 	else outFile.open("trajectories.dat", ofstream::binary | ofstream::app);
 	for (int j = 0; j < nwrite_particles; j++){
 		pos = particles[nfields*j]*Lscl;
-		theta = particles[nfields*j+1];
+		beta = particles[nfields*j+1];
 		energy = (particles[nfields*j+2] - 1)*5.11e5;
 		t_final = particles[nfields*j+3]*Tscl;
 		outFile.write((char *) &pos, sizeof(float));
-		outFile.write((char *) &theta, sizeof(float));
+		outFile.write((char *) &beta, sizeof(float));
 		outFile.write((char *) &energy, sizeof(float));
 		outFile.write((char *) &t_final, sizeof(float));
 	}

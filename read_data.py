@@ -15,8 +15,8 @@ class particles:
         		self.energies = np.fromfile(file, dtype = np.float32, count = head[0])
         		count += head[0]*self.energies[0].nbytes
         		file.seek(count)
-        		self.theta = np.fromfile(file, dtype = np.float32, count = head[0])	
-        		count += head[0]*self.theta[0].nbytes
+        		self.beta = np.fromfile(file, dtype = np.float32, count = head[0])	
+        		count += head[0]*self.beta[0].nbytes
         		file.seek(count)
         		self.t_final = np.fromfile(file, dtype = np.float32)	
 	
@@ -31,8 +31,8 @@ class particles:
 		a1 = ax.plot(hbins[:-1],hist,color = line_colour,label = name,drawstyle = 'steps')
 		return a1
 
-	def hist_theta(self,line_colour,name):
-		hist,hbins = np.histogram(self.theta,bins = 100)
+	def hist_beta(self,line_colour,name):
+		hist,hbins = np.histogram(self.beta,bins = 100)
 		a1 = ax.plot(hbins[:-1],hist,color = line_colour,label = name,drawstyle = 'steps')
 		return a1
 	
@@ -52,7 +52,7 @@ class trajectories:
 			data = np.fromfile(file, dtype = np.float32)
 			mat = data.reshape(len(data)/(head[0]*head[1]*head[2]),head[0],head[1],head[2])
 			self.traj = mat[:,:,0]
-			self.theta = mat[:,:,1]
+			self.beta = mat[:,:,1]
 			self.energies = mat[:,:,2]
 			self.t_final = mat[:,:,3]
 
@@ -66,8 +66,8 @@ class trajectories:
 		plt.xlabel("Time (arbitrary units)")
 		plt.ylabel("Displacement (Mm)")
 
-	def plot_theta(self,pn,line_colour):
-		plt.plot(self.theta[:,pn]/1e3,color = line_colour)
+	def plot_beta(self,pn,line_colour):
+		plt.plot(self.beta[:,pn]/1e3,color = line_colour)
 		plt.xlabel("Time (arbitrary units)")
 		plt.ylabel("Pitch Angle")
 

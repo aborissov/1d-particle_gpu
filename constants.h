@@ -23,16 +23,17 @@ const real Vscl = Lscl/Tscl;
 const real Escl = Vscl*Bscl;
 const real etascl = Vscl*Lscl*mu0_si;
 
-const real Tfinal = 0.1/Tscl;
+const real Tfinal = 0.02/Tscl;
 const real dt = 1.0e-8/Tscl;
-const int nt = Tfinal/dt;
+const int timeblocks = 100;
+const int nt = Tfinal/(dt*timeblocks);
 const int nfields = 4;
-const int nparticles = 32;
+const int nparticles = 5024;
 const int nwrite = 500;
 const int nwrite_particles = 2;
 const int output_fields = nfields;
 
-EXTERN real *energy_kev, *potential;
+EXTERN real *d_energy_kev, *d_potential;
 const real energy_kev_0 = 0.5*511.0;
 
 #endif

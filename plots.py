@@ -1,4 +1,4 @@
-ns = [p12]
+ns = [p2]
 fig = plt.figure()
 ax = fig.add_axes([0.1,0.1,0.8,0.8])
 rcol = 0
@@ -15,7 +15,10 @@ for i in range(len(ns)):
 	elif i == 2:
 		col = "green"
 		name = "run 3"
-        hs = ns[i].hist_tf(col,name)
+	elif i == 3:
+		col = "blue"
+		name = "run 4"
+        hs = ns[i].hist_beta(col,name)
         handles.append(hs)
 ax.set_xlabel("duration (s)")
 ax.set_ylabel("count")
