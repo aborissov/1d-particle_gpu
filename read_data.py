@@ -37,7 +37,9 @@ class particles:
 		return a1
 	
 	def hist_tf(self,line_colour,name):
-		hist,hbins = np.histogram(self.t_final,bins = 100)
+		#binwidth = 0.001
+		#hist,hbins = np.histogram(self.t_final,bins=np.arange(min(self.t_final), max(self.t_final) + binwidth, binwidth))
+		hist,hbins = np.histogram(self.t_final,bins=100)
 		a1 = ax.plot(hbins[:-1],hist,color = line_colour,label = name,drawstyle = 'steps')
 		return a1
 

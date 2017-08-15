@@ -30,27 +30,14 @@ __global__ void move_particles(real *particles, float *dw, real *energy_kev,real
         	u = v*gamma*beta;
         	uperp = v*gamma*sqrt(1.0-beta*beta);
 
-			//printf("particle %d dw %f random_index %d\n",tid,dw[random_index],random_index);
-
-			//if (abs(position*Lscl) > Epar_extent){
-			//	//J = 0;
-			//	//E = 0;
-			//	//if (particles[nfields*tid+3] == 0){
-			//	if (t_final == 0){
-			//		t_final = (tstep + nt*(*timeblock))*dt;
-			//		//particles[nfields*tid+3] = (tstep + nt*(*timeblock))*dt;
-			//		//cout << "particle " << tid << " " << timestep*dt*Tscl << endl;
-			//	}
-			//}
-			//else{
 			if (abs(position*Lscl) < Epar_extent) {
 				//eta_spitzer = 2.4e3/(pow((double) Temp,1.5))/etascl;
 				eta_spitzer = 7.6e-8/etascl;	// corresponds to temperature 10^7 K
 				J = 1.0e4/Escl;		// NON-DIMENSIONAL!!! Note: ensures electric field of 10 V/m when eta = 10^-3 (non-dimensional)
 				eta = 1.0e-3;		// NON-DIMENSIONAL!!!
     			E = eta*J;			// NON-DIMENSIONAL!!!
-				//kappa = eta_spitzer/eta;
-				kappa = 1.0e-5;
+				kappa = 0.001*eta_spitzer/eta;
+				//kappa = 1.0e-8;
 
 				nu = v/(lambda_ei*kappa);
 				//nu = 0.0;
@@ -66,11 +53,9 @@ __global__ void move_particles(real *particles, float *dw, real *energy_kev,real
 
         	    beta += dbeta;
         	    if (beta > 1.0){
-					//cout << "beta = " << particles[nfields*tid+1] << endl;
 					beta = -beta + floor(beta) + 1.0;
 				}
         	    else if (beta < -1.0){
-					//cout << "beta = " << particles[nfields*tid+1] << endl;
 					beta = -beta + ceil(beta) - 1.0;
 				}
         	    gamma += dgamma;
@@ -83,9 +68,8 @@ __global__ void move_particles(real *particles, float *dw, real *energy_kev,real
 				potential[tid] = -eta*J*Escl*position*Lscl/1.0e3;
 				
 				if (fabs(energy_kev[tid] - potential[tid] - energy_kev_0) > 1.0){
-					//particles[nfields*tid] = Epar_extent/Lscl;
 					position = Epar_extent/Lscl;
-					printf("particle %d deviated from energy conservation at time %f", tid, tstep*dt*Tscl);
+					printf("particle %d deviated from energy conservation at time %f", tid, (t_final+dt)*Tscl);
 					printf(" kinetic %f, potential %f, initial %f, difference %f\n", energy_kev[tid], potential[tid], energy_kev_0,energy_kev[tid] - potential[tid] - energy_kev_0);
 					printf(" eta, J, Escl, position, epar_extent, %f %f %f %f %f\n", eta,J,Escl,position*Lscl,Epar_extent);
 				}

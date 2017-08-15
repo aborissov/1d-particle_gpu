@@ -7,7 +7,7 @@
 	#define EXTERN extern
 #endif
 
-typedef float real;
+typedef double real;
 
 const real c = 3.0e8;
 const real mu0_si = 8.85e-12;
@@ -23,9 +23,9 @@ const real Vscl = Lscl/Tscl;
 const real Escl = Vscl*Bscl;
 const real etascl = Vscl*Lscl*mu0_si;
 
-const real Tfinal = 0.02/Tscl;
+const real Tfinal = 0.1/Tscl;
 const real dt = 1.0e-8/Tscl;
-const int timeblocks = 100;
+const int timeblocks = 50;
 const int nt = Tfinal/(dt*timeblocks);
 const int nfields = 4;
 const int nparticles = 5024;
@@ -34,6 +34,7 @@ const int nwrite_particles = 2;
 const int output_fields = nfields;
 
 EXTERN real *d_energy_kev, *d_potential;
-const real energy_kev_0 = 0.5*511.0;
+const real energy_kev_0 = 0.0001678676*511.0;
+//const real energy_kev_0 = 0.5*511.0;
 
 #endif

@@ -60,15 +60,11 @@ int main(int argc, char *argv[]){
 	// run particles
 	cudaEventRecord(start);
 	for (int j = 0; j < timeblocks; j++){
-		//printf("here %d\n",j*nparticles*nt);
-		//checkCudaErrors( curandSetPseudoRandomGeneratorSeed(gen, (unsigned long long) clock()) );
-		//checkCudaErrors( curandSetPseudoRandomGeneratorSeed(gen, (unsigned long long) j) );
 		checkCudaErrors( curandSetGeneratorOffset(gen, (unsigned long long) j*nparticles*nt-1) );
-		//checkCudaErrors( curandSetPseudoRandomGeneratorSeed(gen, 1234ULL) );
 		checkCudaErrors( curandGenerateNormal(gen, dw, nparticles*nt, 0.0f, 1.0f) );
 		move_particles<<<nblocks,threads_per_block>>>(d_particles,dw,d_energy_kev,d_potential,&j);
 		getLastCudaError("move_particles execution failed\n");
-		printf("kenel done %d particle array address %p\n",j,(void *)&dw);
+		if (j % 100 == 0) printf("done timeblock %d\n",j);
 	}
 	cudaEventRecord(stop);
 	cudaEventSynchronize(stop);
