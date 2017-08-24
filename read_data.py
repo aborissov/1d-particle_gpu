@@ -21,6 +21,8 @@ class particles:
         		self.t_final = np.fromfile(file, dtype = np.float32)	
 	
 	def hist_energy(self,line_colour,name):
+		#binwidth = 0.1
+		#hist,hbins = np.histogram(self.energies/1e3,bins=np.arange(min(self.energies/1e3), max(self.energies/1e3) + binwidth, binwidth))
 		hist,hbins = np.histogram(self.energies/1e3,bins = 100)
 		a1 = ax.plot(hbins[:-1],hist,color = line_colour,label = name,drawstyle = 'steps')
 		return a1

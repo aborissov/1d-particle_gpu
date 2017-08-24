@@ -1,6 +1,6 @@
 #ifndef INITIAL_CONDITIONS_H
 #define INITIAL_CONDITIONS_H
 
-void initialise(real *);
+void initialise(real *,real *);
 
 #endif

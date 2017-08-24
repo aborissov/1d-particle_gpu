@@ -14,8 +14,8 @@
 using namespace std;
 
 int main(int argc, char *argv[]){
-	real *h_particles, *d_particles; // array of particles: 1d position, cosine of pitch angle, lorentz factor, exit time
-	bool newflag = 1,newflag_trajectories = 1;
+	real *h_particles, *d_particles, *h_energy_kev_0; // array of particles: 1d position, cosine of pitch angle, lorentz factor, exit time
+	bool newflag = 1;
 	float *dw;
 	int threads_per_block = 32;
 	int nblocks = nparticles/threads_per_block;  // make sure nparticles is a multiple of 32
@@ -30,16 +30,20 @@ int main(int argc, char *argv[]){
 	cudaEventCreate(&stop);
 
 	h_particles = (real *)malloc(nparticles*nfields*sizeof(real));
+	h_energy_kev_0 = (real *)malloc(nparticles*sizeof(real));
 	
 	checkCudaErrors( cudaMalloc((void **)&d_energy_kev, nparticles*sizeof(real)) );
+	checkCudaErrors( cudaMalloc((void **)&d_energy_kev_0, nparticles*sizeof(real)) );
 	checkCudaErrors( cudaMalloc((void **)&d_potential, nparticles*sizeof(real)) );
 	checkCudaErrors( cudaMalloc((void **)&d_particles, nparticles*nfields*sizeof(real)) );
 	checkCudaErrors( cudaMalloc((void **)&dw, nparticles*nt*sizeof(float)) );
-	initialise(h_particles);
+	initialise(h_particles,h_energy_kev_0);
+
 	
 	printf("size of: dw %d d_particles %d\n", nparticles*nt, nparticles*nfields);
 
 	checkCudaErrors( cudaMemcpy(d_particles,h_particles,nparticles*nfields*sizeof(real),cudaMemcpyHostToDevice) );
+	checkCudaErrors( cudaMemcpy(d_energy_kev_0,h_energy_kev_0,nparticles*sizeof(real),cudaMemcpyHostToDevice) );
 
 	// random number generation
 	
@@ -62,7 +66,7 @@ int main(int argc, char *argv[]){
 	for (int j = 0; j < timeblocks; j++){
 		checkCudaErrors( curandSetGeneratorOffset(gen, (unsigned long long) j*nparticles*nt-1) );
 		checkCudaErrors( curandGenerateNormal(gen, dw, nparticles*nt, 0.0f, 1.0f) );
-		move_particles<<<nblocks,threads_per_block>>>(d_particles,dw,d_energy_kev,d_potential,&j);
+		move_particles<<<nblocks,threads_per_block>>>(d_particles,dw,d_energy_kev,d_potential,d_energy_kev_0,&j);
 		getLastCudaError("move_particles execution failed\n");
 		if (j % 100 == 0) printf("done timeblock %d\n",j);
 	}
@@ -79,6 +83,7 @@ int main(int argc, char *argv[]){
 	
 	free(h_particles);
 	checkCudaErrors( cudaFree(d_energy_kev) );
+	checkCudaErrors( cudaFree(d_energy_kev_0) );
 	checkCudaErrors( cudaFree(d_potential) );
 	checkCudaErrors( cudaFree(dw) );
 	checkCudaErrors( cudaFree(d_particles) );

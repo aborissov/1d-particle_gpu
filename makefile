@@ -1,11 +1,11 @@
 OBJS = diagnostics.o initial_conditions.o evol.o particle2.o
 CCG = g++
 CCN = nvcc
-DEBUG = -g
+DEBUG = 
 CFLAGS = -O3 -std=gnu++11  -c $(DEBUG)
 LFLAGS = -O3 -std=gnu++11  $(DEBUG)
-NVCCFLAGS = -lineinfo -arch=sm_35 --ptxas-options=-v --use_fast_math -c
-NVCCLFLAGS = -lineinfo -arch=sm_35 --ptxas-options=-v --use_fast_math 
+NVCCFLAGS = -O3 -std=c++11  -lineinfo -arch=sm_35 --ptxas-options=-v --use_fast_math -c
+NVCCLFLAGS = -O3 -std=c++11   -lineinfo -arch=sm_35 --ptxas-options=-v --use_fast_math 
 INC = -I$(CUDA_HOME)/include -I.
 LIB = -L$(CUDA_HOME)/lib64 -lcudart -lcurand
 
